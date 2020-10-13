@@ -2,8 +2,10 @@ package com.central.oauth2.common.store;
 
 import com.central.common.model.SysUser;
 import com.central.oauth2.common.converter.CustomUserAuthenticationConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.bootstrap.encrypt.KeyProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
@@ -22,7 +24,11 @@ import java.util.Map;
  *
  * @author zlt
  * @date 2018/7/24 16:21
+ * <p>
+ * Blog: https://zlt2000.gitee.io
+ * Github: https://github.com/zlt2000
  */
+@ConditionalOnProperty(prefix = "zlt.oauth2.token.store", name = "type", havingValue = "authJwt")
 public class AuthJwtTokenStore {
 
     @Bean("keyProp")
@@ -39,6 +45,7 @@ public class AuthJwtTokenStore {
     }
 
     @Bean
+    @Order(2)
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         final JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         KeyPair keyPair = new KeyStoreKeyFactory
@@ -57,6 +64,7 @@ public class AuthJwtTokenStore {
      * @return TokenEnhancer
      */
     @Bean
+    @Order(1)
     public TokenEnhancer tokenEnhancer() {
         return (accessToken, authentication) -> {
             final Map<String, Object> additionalInfo = new HashMap<>(1);
